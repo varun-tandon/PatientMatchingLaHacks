@@ -233,22 +233,22 @@ WHERE
     Confidence = 76
 
 SELECT
-    COUNT(DISTINCT hashID) #Hash
-,
+    COUNT(DISTINCT hashID) #Hash,
     Confidence
 FROM
     #tmpSummary
 GROUP BY
     Confidence
 ORDER BY
-    Confidence DESC RETURN IF OBJECT_ID('tempdb..#tmpReview') IS NOT NULL DROP TABLE #tmpReview
+    Confidence DESC RETURN 
+
+IF OBJECT_ID('tempdb..#tmpReview') IS NOT NULL DROP TABLE #tmpReview
+
 SELECT
-    COUNT(DISTINCT TM.idx) #Occurrence
-,
+    COUNT(DISTINCT TM.idx) #Occurrence,
     TM.hashID,
     TM.ParHash,
-    COUNT(DISTINCT TM.ClaimID) #Claims
-,
+    COUNT(DISTINCT TM.ClaimID) #Claims,
     TAAPI.idx,
     TAAPI.orgLastName,
     TAAPI.orgFirstName,
@@ -259,6 +259,7 @@ SELECT
     CASE
         WHEN OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TAAPI.orgLastName)) = OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.LAST_NAME))
         AND OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TAAPI.orgFirstName)) = OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.FIRST_NAME)) THEN 100
+
         WHEN OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TAAPI.orgLastName)) = OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.LAST_NAME))
         AND LEFT(
             OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TAAPI.orgFirstName)),
@@ -267,8 +268,10 @@ SELECT
             OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.FIRST_NAME)),
             4
         ) THEN 90
+
         WHEN OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TAAPI.orgLastName)) = OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.LAST_NAME))
         AND SOUNDEX(orgFirstName) = SOUNDEX(FIRST_NAME) THEN 85
+
         WHEN LEFT(
             OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TAAPI.orgLastName)),
             5
@@ -283,8 +286,10 @@ SELECT
             OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.FIRST_NAME)),
             4
         ) THEN 80
+
         WHEN SOUNDEX(orgLastName) = SOUNDEX(LAST_NAME)
         AND SOUNDEX(orgFirstName) = SOUNDEX(FIRST_NAME) THEN 79
+
         WHEN SOUNDEX(
             OADWH_HASH.dbo.RemoveNonAlphaNumeric(orgLastName)
         ) = SOUNDEX(
@@ -295,6 +300,7 @@ SELECT
         ) = SOUNDEX(
             OADWH_HASH.dbo.RemoveNonAlphaNumeric(P.FIRST_NAME)
         ) THEN 77
+
         WHEN LEFT(
             OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TAAPI.orgLastName)),
             4
