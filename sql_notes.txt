@@ -1,0 +1,152 @@
+cteImport = selecting the 10000 distinct last name, first name, gender, date of birth
+
+grab X (cleaned data)
+------
+idx = order by last name and store row number as idx
+DateOfBirth = convert the type of the date of birth to datetime
+Gender = convert the gender to a character, replace it with U if null, and then uppercase
+FirstName = convert the firstname to characters and remove the nonalphanumeric
+LastName = convert the lastname to characters and remove the nonalphanumeric
+orgLastName = lastname original
+orgFirstName = firstname original
+
+cteHash
+-------
+creates a table 
+X.idx
+X.gender
+DateOfBirth
+FullNameHash = 
+    SHA1(
+        salt +
+        convert date of birth to 8 character format +
+        ~ +
+        Gender +
+        FirstName
+    ) +
+    ~ +
+    LastName
+
+ParHash =
+    SHA1 (
+        salt + 
+        convert date of birth to 8 character format +
+        ~ + 
+        Gender +
+        ~ +
+        left three chars of (firstname + XXX)
+    ) +
+    ~ +
+    left three chars of (lastname + XXX)
+orgLastName = orgLastName
+orgFirstName = orgFirstName
+
+cteHIDX
+--------
+CH.idx
+hashID = row number ordered by the ParHash
+CH.parHash
+
+(where CH is cteHash)
+
+line 81 (TH = cteHash, C = cteHIDX joined with cteImport on idx)
+--------
+C.idx
+C.hashID
+TH.ParHash
+xRefID = AP + right(00000000 + str(100 + C.hashID))
+NewDateOfBirth = randomness + TH.DateOfBirth
+TH.Gender
+TH.orgLastName
+TH.orgFirstName
+
+put this all into #tmpHash
+orders by the T.idx
+
+cte (TAAPT = #tmpHash)
+----
+idx = min index from tmpHash
+TAAPT.hashID
+TAAPT.ParHash
+group by TAAPT.hashID, TAAPT.ParHash
+
+#tmpMatch (c = cte, PHH = other database joined with c according to parHash)
+--------
+c.idx
+c.hashID
+c.ParHash
+PHH.ClaimID
+
+#tmpStageName (TM = #tmpMatch, TH = #tmpHash joined with TM, H = another database, P = another database)
+--------
+TM.idx
+TM.hashID,
+TM.ParHash,
+TM.ClaimID,
+TM.orgLastName,
+TM.orgFirstName,
+P.LAST_NAME,
+P.FIRST_NAME,
+
+join the two databases on patient id and then store both possible names
+
+OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TH.orgLastName)) srcRnaLastName,
+OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), TH.orgFirstName)) srcRnaFirstName,
+OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.LAST_NAME)) fndRnaLastName,
+OADWH_HASH.dbo.RemoveNonAlphaNumeric(CONVERT(VARCHAR(25), P.FIRST_NAME)) fndRnaFirstName INTO #tmpStageName
+
+#tmpReview
+---------
+TSN.idx,
+TSN.hashID,
+TSN.ParHash,
+TSN.ClaimID
+TSN.srcLastName,
+TSN.srcFirstName,
+TSN.srcRnaLastName,
+TSN.srcRnaFirstName,
+TSN.fndRnaLastName,
+TSN.fndRnaFirstName,
+TSN.fndLastName,
+TSN.fndFirstName
+
+conditions for joining
+---------------------
+1. two databases matching rna first and last: 100
+2. two databases matching rna last and matching left4 of rna first: 90
+3. two databases matching rna last: 85
+4. two databases matching the left5 rna last, left4 rna first: 80
+5. soundex of non-rna first and last (same two databases): 79
+6. soundex of rna first and last (same two databases): 77
+7. left 4 of the rna last names (both db) and same rna first name: 76
+8. same rna first name (both db): 60
+9. 50
+
+#tmpSummary
+-----------
+hashID,
+COUNT(DISTINCT ClaimID) #Claims,
+srcLastName,
+srcFirstName,
+srcRnaLastName,
+srcRnaFirstName,
+fndRnaLastName,
+fndRnaFirstName,
+fndLastName,
+fndFirstName,
+Confidence
+
+#tmpReview (TM = tmpMatch, TAAPI = joining tmpMatch and tmpHash, H, P)
+-----------
+COUNT(DISTINCT TM.idx) #Occurrence,
+TM.hashID,
+TM.ParHash,
+COUNT(DISTINCT TM.ClaimID) #Claims,
+TAAPI.idx,
+TAAPI.orgLastName,
+TAAPI.orgFirstName,
+'~' [~],
+P.LAST_NAME,
+P.FIRST_NAME,
+P.DATE_OF_BIRTH,
+
