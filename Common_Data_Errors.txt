@@ -1,0 +1,25 @@
+Patient Account Num:
+	-not always present 
+	-matching patient account numbers indicates same patient
+	-converse is not true
+
+First Name/Last Name:
+	-different spellings, Mervin vs Mervyn(should be accounted for by sounded)
+	-abbreviations, Cam v Cameron, Anne v Annette
+	-fat finger errors:
+		-missing letters MacDonald v McDonald, Robers vs Roberts
+		-To
+	-other accounting errors, Todd v Tom, J v Jae
+
+DOB:
+	-missing 0's, 9/2/2000 vs 9/20/2000
+	-off by one fat fingers 9/20 v 9/21
+	-Patient 39 and 40
+
+Gender:
+	-not 100% consistent within groups, cannot be used to differentiate patients with 100% certainty
+
+Address: 
+	-difference in street v s, pkway v parkway
+
+ 
