@@ -1,5 +1,26 @@
 import pandas as pd
 from random import sample
+import levenshtein_distance_stats as lds
+
+def calculate_unbiased_confusion(labels, df):
+    tp = 0
+    fp = 0
+    tn = 0
+    fn = 0
+    rows = lds.generate_balanced_match_data(df)
+    for row in rows:
+        row1, row2 = row
+        if row1['GroupID'] == row2['GroupID']: # P
+                if labels[row1.name] == labels[row2.name]: # T
+                    tp += 1
+                else:
+                    fn += 1
+        else: # N
+            if labels[row1.name] == labels[row2.name]: # F
+                fp += 1
+            else: # T
+                tn += 1
+    return (tp, fp, tn, fn)
 
 def calculate_confusion_matrix(labels, df):
     tp = 0

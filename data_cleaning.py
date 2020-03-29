@@ -148,8 +148,11 @@ def clean_state_data(df):
 
 def clean_zip_code(df):
     df['Current Zip Code'].fillna(0, inplace=True)
-    df['Zip Code String'] = df['Current Zip Code'].apply(lambda x: str(int(x)))
+    df['Zip Code String'] = df['Current Zip Code'].apply(lambda x: str(x))
+    df['Zip Code String'] = df['Zip Code String'].apply(lambda x: x[:5] if len(x) > 5 else x)
     df['Zip Code String'] = df['Zip Code String'].replace('0', '00000')
+    df['Zip Code String'] = df['Zip Code String'].apply(lambda x: '00000' if not x.isdigit() else x)
+    df['Zip Code String'] = df['Zip Code String'].apply(lambda x: x if len(x) >= 5 else (x + '0' * (5 - len(x))))
     df['National Area'] = df['Zip Code String'].apply(lambda x: int(x[0]))
     df['Sectional Center'] = df['Zip Code String'].apply(lambda x: int(x[1:3]))
     df['Delivery Area'] = df['Zip Code String'].apply(lambda x: int(x[3:]))
@@ -160,10 +163,13 @@ def convert_date_string(x):
         x['dob_string'] = str(parsed_date.strftime('%Y%m%d'))
         return x
     except:
-        bad_row = x['Date of Birth']
-        bad_row_splits = bad_row.split('/')
-        x['dob_string'] = bad_row_splits[2] + bad_row_splits[1] + bad_row_splits[0]
-        return x
+        try:
+            bad_row = x['Date of Birth']
+            bad_row_splits = bad_row.split('/')
+            x['dob_string'] = bad_row_splits[2] + bad_row_splits[1] + bad_row_splits[0]
+            return x
+        except:
+            return x
 
 def clean_date_data(df):
     return df.apply(convert_date_string, axis=1)
@@ -194,7 +200,7 @@ def clean_address_data(df):
     df['cleaned street'].fillna('U', inplace = True)
 
 def load_and_clean_data(filename):
-    df_patient = pd.read_csv('Patient Matching Data.csv')
+    df_patient = pd.read_csv(filename)
     encode_name_columns(df_patient)
     clean_state_data(df_patient)
     clean_zip_code(df_patient)

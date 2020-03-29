@@ -7,9 +7,18 @@ import fuzzy
 import re #regular expressions
 import numpy as np
 from Levenshtein import distance as levenshtein_distance
+from tqdm import tqdm
 soundex = fuzzy.Soundex(4)
 
-def findConfidenceLevel(first_name1, last_name1, rna_first_name1, rna_last_name1, first_name2, last_name2, rna_first_name2, rna_last_name2):
+def findConfidenceLevel(row1, row2):
+    first_name1 = row1['First Name']
+    last_name1 = row1['Last Name']
+    rna_first_name1 = row1['rnaFirstName']
+    rna_last_name1 = row1['rnaLastName']
+    first_name2 = row2['First Name']
+    last_name2 = row2['Last Name']
+    rna_first_name2 = row2['rnaFirstName']
+    rna_last_name2 = row2['rnaLastName']
     if rna_first_name1 == rna_first_name2 and rna_last_name1 == rna_last_name2:
         return 100 
     elif rna_last_name1 == rna_last_name2 and rna_first_name1[:4] == rna_first_name2[:4]:
@@ -29,7 +38,15 @@ def findConfidenceLevel(first_name1, last_name1, rna_first_name1, rna_last_name1
     else:
         return 50
     
-def findConfidenceLevel2(first_name1, last_name1, rna_first_name1, rna_last_name1, first_name2, last_name2, rna_first_name2, rna_last_name2):   
+def findConfidenceLevel2(row1, row2):
+    first_name1 = row1['First Name']
+    last_name1 = row1['Last Name']
+    rna_first_name1 = row1['rnaFirstName']
+    rna_last_name1 = row1['rnaLastName']
+    first_name2 = row2['First Name']
+    last_name2 = row2['Last Name']
+    rna_first_name2 = row2['rnaFirstName']
+    rna_last_name2 = row2['rnaLastName']  
     if rna_first_name1 == rna_first_name2 and rna_last_name1 == rna_last_name2:
         return 100
     elif rna_last_name1 == rna_last_name2 and rna_first_name1[:4] == rna_first_name2[:4]:
@@ -51,7 +68,15 @@ def findConfidenceLevel2(first_name1, last_name1, rna_first_name1, rna_last_name
     else:
         return 50
 
-def find_Levenshtein_Conf_Name(first_name1, last_name1, rna_first_name1, rna_last_name1, first_name2, last_name2, rna_first_name2, rna_last_name2):
+def find_Levenshtein_Conf_Name(row1, row2):
+    first_name1 = row1['First Name']
+    last_name1 = row1['Last Name']
+    rna_first_name1 = row1['rnaFirstName']
+    rna_last_name1 = row1['rnaLastName']
+    first_name2 = row2['First Name']
+    last_name2 = row2['Last Name']
+    rna_first_name2 = row2['rnaFirstName']
+    rna_last_name2 = row2['rnaLastName']  
     if rna_first_name1 == rna_first_name2 and rna_last_name1 == rna_last_name2:
         return 100
     elif rna_last_name1 == rna_last_name2 and rna_first_name1[:4] == rna_first_name2[:4]:
@@ -108,24 +133,24 @@ def compare_address(address1, address2):
     else:
         return min_street / levenshtein_sum
 
-def generate_confidence_matrix(confidence_func, df, threshold):
+def generate_confidence_matrix(confidence_func, df, threshold, search_width):
     matrix = np.zeros((df.shape[0], df.shape[0]))
+    pbar = tqdm(total=df.shape[0] * search_width)
     for index1, row1 in df.iterrows():
         for index2, row2 in df.iterrows():
-            conf = confidence_func(
-                    row1['First Name'],
-                    row1['Last Name'],
-                    row1['rnaFirstName'],
-                    row1['rnaLastName'],
-                    row2['First Name'],
-                    row2['Last Name'],
-                    row2['rnaFirstName'],
-                    row2['rnaLastName']
-            )
+            if index2 < index1:
+                continue
+            if index2 > index1 + search_width:
+                break
+            conf = confidence_func(row1, row2)
             if conf > threshold:
                 matrix[index1][index2] = 1
             else:
                 matrix[index1][index2] = 0
+            pbar.update(1)
+    pbar.close()
+    i_lower = np.tril_indices(matrix.shape[0], -1)
+    matrix[i_lower] = matrix.T[i_lower]
     return matrix
 
 def calculate_connected_components(adjacency_matrix):
