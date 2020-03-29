@@ -11,7 +11,7 @@ soundex = fuzzy.Soundex(4)
 
 def findConfidenceLevel(first_name1, last_name1, rna_first_name1, rna_last_name1, first_name2, last_name2, rna_first_name2, rna_last_name2):
     if rna_first_name1 == rna_first_name2 and rna_last_name1 == rna_last_name2:
-        return 100
+        return 100 
     elif rna_last_name1 == rna_last_name2 and rna_first_name1[:4] == rna_first_name2[:4]:
         return 90
     elif rna_last_name1 == rna_last_name2:
@@ -90,6 +90,23 @@ def find_Gender_Conf(g1, g2):
         return 100
     else:
         return 60
+
+def compare_address(address1, address2):
+    levenshtein_sum = 0
+    min_street = min(len(address1), len(address2))
+    for x in range(min(len(address1), len(address2))):
+        # if we are comparing the last word compare the shortest combination
+        if x == min_street - 1:
+            min_word_length = min(len(address1[x]), len(address2[x]))
+            temp1 = address1[x][:min_word_length]
+            temp2 = address2[x][:min_word_length]
+            levenshtein_distance(temp1, temp2)
+        else:
+            levenshtein_sum += levenshtein_distance(address1[x], address2[x])
+    if levenshtein_sum == 0:
+        return 0
+    else:
+        return min_street / levenshtein_sum
 
 def generate_confidence_matrix(confidence_func, df, threshold):
     matrix = np.zeros((df.shape[0], df.shape[0]))

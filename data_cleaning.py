@@ -188,6 +188,11 @@ def encode_name_columns(df):
     df['First Name'] = df['First Name'].apply(lambda x: ''.join([i if ord(i) < 128 else ' ' for i in x]))
     df['Last Name'] = df['Last Name'].apply(lambda x: ''.join([i if ord(i) < 128 else ' ' for i in x]))
     
+def clean_address_data(df):
+    df['cleaned street'] = df['Current Street 1'].str.replace('[^0-9a-zA-Z ]', '').str.lower()
+    df['cleaned street'] = df['cleaned street'].str.split(' ')
+    df['cleaned street'].fillna('U', inplace = True)
+
 def load_and_clean_data(filename):
     df_patient = pd.read_csv('Patient Matching Data.csv')
     encode_name_columns(df_patient)
@@ -197,4 +202,5 @@ def load_and_clean_data(filename):
     clean_sex_data(df_patient)
     fill_empty_name_data(df_patient)
     normalize_patient_first_and_last_names(df_patient)
+    clean_address_data(df_patient)
     return df_patient

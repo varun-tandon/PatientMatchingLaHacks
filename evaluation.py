@@ -1,4 +1,5 @@
 import pandas as pd
+from random import sample
 
 def calculate_confusion_matrix(labels, df):
     tp = 0
