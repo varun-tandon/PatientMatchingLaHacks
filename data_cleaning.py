@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 from Levenshtein import distance as levenshtein_distance
+import re
 
 def swap_full_state_name(x):
     states = {
@@ -176,11 +177,20 @@ def fill_empty_name_data(df):
     df['Last Name'].fillna('', inplace=True)
 
 def normalize_patient_first_and_last_names(df):
-    df['rnaFirstName'] = df['First Name'].str.replace('[^a-zA-Z]', '').str.lower()
-    df['rnaLastName'] = df['Last Name'].str.replace('[^a-zA-Z]', '').str.lower()
+    df['rnaFirstName'] = df['First Name'].apply(lambda x: re.sub(r'\W+', '', x))
+    df['rnaLastName'] = df['Last Name'].apply(lambda x: re.sub(r'\W+', '', x))
+    df['rnaFirstName'] = df['rnaFirstName'].apply(lambda x: ''.join([i if ord(i) < 128 else ' ' for i in x]))
+    df['rnaLastName'] = df['rnaLastName'].apply(lambda x: ''.join([i if ord(i) < 128 else ' ' for i in x]))
 
+def encode_name_columns(df):
+    df['First Name'].fillna('', inplace=True)
+    df['Last Name'].fillna('', inplace=True)
+    df['First Name'] = df['First Name'].apply(lambda x: ''.join([i if ord(i) < 128 else ' ' for i in x]))
+    df['Last Name'] = df['Last Name'].apply(lambda x: ''.join([i if ord(i) < 128 else ' ' for i in x]))
+    
 def load_and_clean_data(filename):
     df_patient = pd.read_csv('Patient Matching Data.csv')
+    encode_name_columns(df_patient)
     clean_state_data(df_patient)
     clean_zip_code(df_patient)
     df_patient = clean_date_data(df_patient)

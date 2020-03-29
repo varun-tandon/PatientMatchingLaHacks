@@ -51,7 +51,47 @@ def findConfidenceLevel2(first_name1, last_name1, rna_first_name1, rna_last_name
     else:
         return 50
 
-def generate_confidence_matrix(confidence_type, confidence_func, df, threshold):
+def find_Levenshtein_Conf_Name(first_name1, last_name1, rna_first_name1, rna_last_name1, first_name2, last_name2, rna_first_name2, rna_last_name2):
+    if rna_first_name1 == rna_first_name2 and rna_last_name1 == rna_last_name2:
+        return 100
+    elif rna_last_name1 == rna_last_name2 and rna_first_name1[:4] == rna_first_name2[:4]:
+        return 90
+    elif rna_last_name1 == rna_last_name2 and levenshtein_distance(first_name1, first_name2) < 4:
+        return 85
+    elif rna_last_name1[0:5] == rna_last_name2[0:5] and rna_first_name1[:4] == rna_first_name2[:4]:
+        return 80
+    elif levenshtein_distance(last_name1, last_name2) < 4 and levenshtein_distance(last_name1, last_name2) < 4:
+        return 79
+    elif levenshtein_distance(rna_last_name1, rna_last_name2) < 4 and levenshtein_distance(rna_first_name1, rna_first_name2) < 4:
+        return 77
+    elif rna_first_name1 == rna_first_name2 and levenshtein_distance(rna_last_name1[:4], rna_last_name2[:4]) < 4:
+        return 76
+    elif rna_last_name1 == rna_last_name2:
+        return 75
+    elif rna_first_name1 == rna_first_name2:
+        return 60
+    else:
+        return 50
+
+def find_Levenshtein_Conf_DOB(dob_1, dob2):
+    if dob_1 == dob_2:
+        return 80
+    elif levenshtein_distance(dob1, dob2) == 1:
+        return 66
+    elif levenshtein_distance(dob1, dob2) == 2:
+        return 5.7
+    elif levenshtein_distance(dob1, dob2) == 3:
+        return 0.02
+    else:
+        return 0
+
+def find_Gender_Conf(g1, g2):
+    if g1 == g2:
+        return 100
+    else:
+        return 60
+
+def generate_confidence_matrix(confidence_func, df, threshold):
     matrix = np.zeros((df.shape[0], df.shape[0]))
     for index1, row1 in df.iterrows():
         for index2, row2 in df.iterrows():
@@ -72,5 +112,5 @@ def generate_confidence_matrix(confidence_type, confidence_func, df, threshold):
     return matrix
 
 def calculate_connected_components(adjacency_matrix):
-    graph = csr_matrix(confidence_matrix)
+    graph = csr_matrix(adjacency_matrix)
     return connected_components(csgraph=graph, directed=False, return_labels=True)

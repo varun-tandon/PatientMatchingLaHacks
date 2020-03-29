@@ -1,6 +1,6 @@
 import pandas as pd
 
-def measure_accuracy(labels, df):
+def calculate_confusion_matrix(labels, df):
     tp = 0
     fp = 0
     tn = 0
@@ -20,3 +20,15 @@ def measure_accuracy(labels, df):
                 else: # T
                     tn += 1
     return (tp, fp, tn, fn)
+
+def calculate_accuracy(tp, fp, tn, fn):
+    return (tp + tn) / (tp + fp + tn + fn)
+
+def calculate_precision(tp, fp, tn, fn):
+    return tp / (tp + fp)
+
+def calcualte_recall(tp, fp, tn, fn):
+    return tp / (tp + fn)
+
+def calculate_F1_score(tp, fp, tn, fn):
+    return 2 * tp / (2 * tp + fp + fn)
