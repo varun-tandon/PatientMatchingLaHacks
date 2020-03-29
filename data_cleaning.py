@@ -174,6 +174,12 @@ def convert_date_string(x):
 def clean_date_data(df):
     return df.apply(convert_date_string, axis=1)
 
+def clean_city(df):
+    df['Current City'].fillna('U', inplace = True)
+    
+    df['Current City'] = df['Current City'].apply(lambda x: ''.join([i if ord(i) < 128 else ' ' for i in x]))
+    df['Current City'] = df['Current City'].apply(lambda x: re.sub(r'\W+', '', x))
+    
 def clean_sex_data(df):
     df['Sex'].fillna('U', inplace=True)
     df['Sex'] = df['Sex'].apply(lambda x: x[0].upper() if x[0].upper() in {'M', 'F'} else 'U')
@@ -202,6 +208,7 @@ def clean_address_data(df):
 def load_and_clean_data(filename):
     df_patient = pd.read_csv(filename)
     encode_name_columns(df_patient)
+    clean_city(df_patient)
     clean_state_data(df_patient)
     clean_zip_code(df_patient)
     df_patient = clean_date_data(df_patient)
