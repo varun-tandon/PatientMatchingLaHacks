@@ -9,6 +9,9 @@ Team Members:
 
 Devpost: https://devpost.com/software/patients-wfg4nc
 
+## Challenge
+Office Ally Challenge 1: Patient Matching.
+
 ## Inspiration
 
 Currently, medical records of patients are widely dispersed across various hospital and insurance databases, segregating the information of patients across a variety of sources. This is specially problematic when considering health data, since health data can have a large impact on the quality of care delivery. Unfortunately, matching patient records is not a simple task. There does not exist a single unifying identifier for patient data, and often the data collected by various healthcare providers differs, and is stored in varying underlying formats. Thus, P.A.T.I.E.N.T.S, we aim to solve this problem by using scripting, data science, natural language processing, and a variety of heuristics.
