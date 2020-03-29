@@ -63,9 +63,9 @@ The code will output the results to `results.csv`, where the grouping column ind
    4. Given this graph based representation of our patient records, where connections are high confidence matches between records, we now group connected components to be a collective group.
    5. Finally, we built out a testing harness that provides key information such as the confusion matrix of our model, accuracy, precision, recall, and F1 score. We also performed majority undersampling in order to de-bias our dataset and have realistic accuracy metrics.
    Graph Representation of Patient Record Clustering:
-![](https://codimd.s3.shivering-isles.com/demo/uploads/upload_3dd652a642e6b767338e3ba9f7076d59.png)
+![](https://i.imgur.com/kjqFkh0.png)
 4. After writing this code to convert pairwise matches to cluster groups, we developed our first more sophisticated algorithm for clustering, heirarchical clustering (specifically Agglomerative Clustering). We chose Agglomerative Clustering since it provides an unsupervised method for clustering data without a parameter to indicate the number of clusters. Since we do not know how many clusters of patients there will be in the end, we could not use algorithms such as k-Means (which require number of clusters as a parameter). We also realized that we would need to implement some metric for distance despite our categorical data. Our research revealed that we could use the Gower distance metric to convert categorical data to numerical values. A visualization of a generated clustering can be found below:
-![](https://codimd.s3.shivering-isles.com/demo/uploads/upload_0e0b4790a0dd4c6a0d9345c898df5237.png)
+![](https://i.imgur.com/dwHvZix.png)
 5. To build our main predictive model, we started with our Python implementation of the patientMatchPOC.sql. The implementation utlizied removed non-alphanumeric first and last names as well as the soundex of the original first and last names to gengerate a "confidence score" that two patients are the same. We built upon this model using different features and developed a set of rules for determining if each feature is similar.
     1. Tested levenshtein distance between non-alphanumeric first and last names with characters to generate confidence scpres similar to the patientMatchPOC.sql
     2. Preformed additional cleanings on features that weren't mentioned above in step 1
