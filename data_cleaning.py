@@ -216,4 +216,5 @@ def load_and_clean_data(filename):
     fill_empty_name_data(df_patient)
     normalize_patient_first_and_last_names(df_patient)
     clean_address_data(df_patient)
+    df_patient.fillna(0, inplace=True)
     return df_patient
