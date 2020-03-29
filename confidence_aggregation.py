@@ -190,7 +190,7 @@ def compare_patients(patient1, patient2):
     checked = 0
     if find_account_number(patient1['Patient Acct #'], patient2['Patient Acct #']) == 0:
         return 100
-    conf1 = findConfidenceLevel(patient1['First Name'], patient1['Last Name'], patient1['rnaFirstName'], patient1['rnaLastName'], patient2['First Name'], patient2['Last Name'], patient2['rnaFirstName'], patient2['rnaLastName'])
+    conf1 = findConfidenceLevel(patient1, patient2)
     if conf1 == 0:
         mismatches += 1
     elif conf1 == 1:
@@ -236,7 +236,7 @@ def compare_patients(patient1, patient2):
     else:
         return 100
     
-def generate_confidence_matrix(confidence_func, df, threshold):
+def generate_confidence_matrix(confidence_func, df, threshold, search_width):
     matrix = np.zeros((df.shape[0], df.shape[0]))
     pbar = tqdm(total=df.shape[0] * search_width)
     for index1, row1 in df.iterrows():

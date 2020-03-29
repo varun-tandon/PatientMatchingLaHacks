@@ -9,7 +9,7 @@ FILENAME = 'Patient Matching Data.csv'
 
 df_patient = load_and_clean_data(FILENAME)
 
-matrix = generate_confidence_matrix(compare_patients, df_patient, 50)
+matrix = generate_confidence_matrix(compare_patients, df_patient, 50, df_patient.shape[0])
 n_components, labels = calculate_connected_components(matrix)
 tp, fp, tn, fn = calculate_unbiased_confusion(labels, df_patient)
 
